@@ -130,6 +130,51 @@
       opacity: 0.7;
     }
 
+    /* === SLIME BUBBLES === */
+    .bubbles {
+      display: flex;
+      gap: 2.5rem;
+      justify-content: center;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .bubble-wrap {
+      position: relative;
+      text-decoration: none;
+      cursor: pointer;
+      display: block;
+    }
+
+    .bubble-wrap canvas {
+      display: block;
+      filter: drop-shadow(0 0 14px #3a7a1466) drop-shadow(0 0 30px #1a4a0a33);
+      transition: filter 0.3s;
+    }
+
+    .bubble-wrap:hover canvas {
+      filter: drop-shadow(0 0 24px #6dbf2a88) drop-shadow(0 0 50px #2a6a0a55);
+    }
+
+    .bubble-label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cinzel', serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--glow);
+      text-shadow: 0 0 8px var(--slime), 0 0 20px #1a4a0a;
+      pointer-events: none;
+      text-align: center;
+      padding: 1rem;
+    }
+
     /* === LINKS === */
     .links {
       display: flex;
@@ -172,12 +217,24 @@
 <body>
 
   <section class="hero">
+
+    <div class="bubbles">
+      <a href="#" class="bubble-wrap" id="bubble-merch">
+        <canvas width="190" height="190"></canvas>
+        <span class="bubble-label" style="font-size:0.62rem;">Merchandise</span>
+      </a>
+      <a href="#" class="bubble-wrap" id="bubble-art">
+        <canvas width="175" height="175"></canvas>
+        <span class="bubble-label">Art</span>
+      </a>
+    </div>
+
     <div class="logo-wrap">
       <img src="GOBLINFIENDpixelLOGO4.png" alt="Goblin Fiend Studios Logo"/>
     </div>
 
     <h1 class="studio-name">Goblin Fiend Studios</h1>
-    <p class="tagline">Independent Game Development</p>
+    <p class="tagline">Indie Game Development & Art</p>
 
     <div class="badge">Something wicked this way comes</div>
 
@@ -186,8 +243,132 @@
       <a href="https://www.tiktok.com/@goblinfiend" target="_blank">TikTok</a>
       <a href="https://www.instagram.com/goblinfiend.studios" target="_blank">Instagram</a>
       <a href="https://x.com/GoblinFiend_Art" target="_blank">Twitter / X</a>
+      <a href="https://soundcloud.com/goblinfiend" target="_blank">SoundCloud</a>
+      <a href="#" style="opacity:0.4; cursor:not-allowed;">Spotify — Coming Soon</a>
     </nav>
   </section>
+
+  <script>
+    function createBlob(canvas, opts) {
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width, H = canvas.height;
+      const cx = W / 2, cy = H / 2;
+      const R = W * 0.40;
+      const points = 10;
+      let hueShift = opts.offset * 30 || 0;
+
+      function blobPath(time) {
+        const pts = [];
+        for (let i = 0; i < points; i++) {
+          const angle = (i / points) * Math.PI * 2 - Math.PI / 2;
+          const n1 = Math.sin(angle * 2 + time * 0.6) * 0.10;
+          const n2 = Math.cos(angle * 3 - time * 0.4) * 0.07;
+          const n3 = Math.sin(angle * 1.5 + time * 0.9) * 0.05;
+          const r = R * (1 + n1 + n2 + n3);
+          pts.push({ x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r });
+        }
+        ctx.beginPath();
+        for (let i = 0; i < pts.length; i++) {
+          const p0 = pts[(i - 1 + pts.length) % pts.length];
+          const p1 = pts[i];
+          const p2 = pts[(i + 1) % pts.length];
+          const p3 = pts[(i + 2) % pts.length];
+          const cp1x = p1.x + (p2.x - p0.x) / 6;
+          const cp1y = p1.y + (p2.y - p0.y) / 6;
+          const cp2x = p2.x - (p3.x - p1.x) / 6;
+          const cp2y = p2.y - (p3.y - p1.y) / 6;
+          if (i === 0) ctx.moveTo(p1.x, p1.y);
+          ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+        }
+        ctx.closePath();
+      }
+
+      return function draw(time, hs) {
+        hueShift = hs;
+        ctx.clearRect(0, 0, W, H);
+
+        blobPath(time);
+        const base = ctx.createRadialGradient(cx - R*0.2, cy - R*0.25, R*0.05, cx, cy, R*1.15);
+        base.addColorStop(0,   'rgba(45,100,10,0.93)');
+        base.addColorStop(0.5, 'rgba(15,42,6,0.96)');
+        base.addColorStop(1,   'rgba(4,12,2,0.98)');
+        ctx.fillStyle = base;
+        ctx.fill();
+
+        blobPath(time);
+        ctx.save();
+        ctx.clip();
+        const oil1 = ctx.createLinearGradient(cx - R, cy - R, cx + R, cy + R);
+        oil1.addColorStop(0,   `hsla(${100 + hueShift % 360}, 80%, 45%, 0.00)`);
+        oil1.addColorStop(0.2, `hsla(${160 + hueShift % 360}, 90%, 55%, 0.20)`);
+        oil1.addColorStop(0.4, `hsla(${220 + hueShift % 360}, 80%, 50%, 0.14)`);
+        oil1.addColorStop(0.6, `hsla(${280 + hueShift % 360}, 70%, 55%, 0.16)`);
+        oil1.addColorStop(0.8, `hsla(${340 + hueShift % 360}, 85%, 50%, 0.11)`);
+        oil1.addColorStop(1,   `hsla(${60  + hueShift % 360}, 90%, 60%, 0.00)`);
+        ctx.fillStyle = oil1;
+        ctx.fill();
+        const oil2 = ctx.createLinearGradient(cx + R, cy - R, cx - R, cy + R);
+        oil2.addColorStop(0,   `hsla(${200 + hueShift*0.5 % 360}, 70%, 50%, 0.00)`);
+        oil2.addColorStop(0.3, `hsla(${260 + hueShift*0.5 % 360}, 80%, 60%, 0.14)`);
+        oil2.addColorStop(0.6, `hsla(${320 + hueShift*0.5 % 360}, 75%, 55%, 0.11)`);
+        oil2.addColorStop(1,   `hsla(${20  + hueShift*0.5 % 360}, 80%, 50%, 0.00)`);
+        ctx.fillStyle = oil2;
+        ctx.fill();
+        ctx.restore();
+
+        blobPath(time);
+        ctx.strokeStyle = 'rgba(85,190,32,0.60)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        blobPath(time);
+        ctx.strokeStyle = 'rgba(55,130,18,0.15)';
+        ctx.lineWidth = 9;
+        ctx.stroke();
+
+        blobPath(time);
+        ctx.save();
+        ctx.clip();
+        const shine = ctx.createRadialGradient(cx - R*0.28, cy - R*0.32, 1, cx - R*0.18, cy - R*0.22, R*0.52);
+        shine.addColorStop(0,   'rgba(255,255,255,0.24)');
+        shine.addColorStop(0.4, 'rgba(210,255,160,0.08)');
+        shine.addColorStop(1,   'rgba(255,255,255,0)');
+        ctx.fillStyle = shine;
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(cx - R*0.26, cy - R*0.28, R*0.09, R*0.05, -0.5, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(255,255,255,0.30)';
+        ctx.fill();
+        ctx.restore();
+      };
+    }
+
+    const blobs = [];
+    document.querySelectorAll('.bubble-wrap').forEach((wrap, i) => {
+      const canvas = wrap.querySelector('canvas');
+      const drawFn = createBlob(canvas, { offset: i * 1.8 });
+      blobs.push({ wrap, drawFn, offset: i * 1.2 });
+    });
+
+    let globalT = 0;
+    let globalHue = 0;
+
+    function masterLoop() {
+      globalT += 0.010;
+      globalHue += 0.35;
+
+      blobs.forEach(({ wrap, drawFn, offset }) => {
+        const t = globalT + offset;
+        // smooth sine wobble — position only, no scale jitter
+        const y = Math.sin(t * 0.9) * 7;
+        wrap.style.transform = `translateY(${y}px)`;
+        drawFn(globalT + offset * 0.5, globalHue + offset * 40);
+      });
+
+      requestAnimationFrame(masterLoop);
+    }
+
+    requestAnimationFrame(masterLoop);
+  </script>
 
   <footer>© 2026 Goblin Fiend Studios — goblinfiend.com</footer>
 
