@@ -1,1 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Goblin Fiend Studios</title>
+  <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Cinzel:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
+    :root {
+      --black:      #050a04;
+      --deep:       #0a1208;
+      --dark-green: #0f1f0c;
+      --mid-green:  #1a3312;
+      --slime:      #4a8c1c;
+      --bright:     #6dbf2a;
+      --glow:       #8fe84a;
+      --text:       #c8d9b0;
+      --muted:      #5a7040;
+    }
+
+    html, body {
+      height: 100%;
+      background-color: var(--black);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      overflow-x: hidden;
+    }
+
+    /* === NOISE OVERLAY === */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 100;
+      opacity: 0.4;
+    }
+
+    /* === HERO === */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 2rem;
+      background:
+        radial-gradient(ellipse 60% 50% at 50% 40%, #1a3a0a 0%, transparent 70%),
+        var(--black);
+    }
+
+    /* drip border top */
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--slime), var(--bright), var(--slime), transparent);
+      box-shadow: 0 0 18px var(--slime), 0 0 40px #2a5a0a;
+    }
+
+    .logo-wrap {
+      position: relative;
+      margin-bottom: 2rem;
+    }
+
+    .logo-wrap img {
+      width: clamp(140px, 28vw, 260px);
+      image-rendering: pixelated;
+      filter: drop-shadow(0 0 18px #4a8c1c88) drop-shadow(0 0 40px #1a4a0a);
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { filter: drop-shadow(0 0 18px #4a8c1c88) drop-shadow(0 0 40px #1a4a0a); }
+      50%       { filter: drop-shadow(0 0 28px #6dbf2acc) drop-shadow(0 0 60px #2a6a0a); }
+    }
+
+    .studio-name {
+      font-family: 'UnifrakturMaguntia', cursive;
+      font-size: clamp(2.4rem, 7vw, 5rem);
+      color: var(--bright);
+      text-shadow:
+        0 0 10px var(--slime),
+        0 0 30px #2a5a0a,
+        2px 2px 0 #0a1208;
+      letter-spacing: 0.04em;
+      text-align: center;
+      line-height: 1;
+      margin-bottom: 0.6rem;
+    }
+
+    .tagline {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(0.7rem, 1.8vw, 1rem);
+      color: var(--muted);
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    /* === COMING SOON BADGE === */
+    .badge {
+      display: inline-block;
+      border: 1px solid var(--slime);
+      color: var(--glow);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      padding: 0.5rem 1.4rem;
+      position: relative;
+      background: #0a1a0633;
+      box-shadow: 0 0 12px #1a4a0a, inset 0 0 10px #0a1a0655;
+      margin-bottom: 3.5rem;
+    }
+
+    .badge::before,
+    .badge::after {
+      content: '//';
+      color: var(--slime);
+      margin: 0 0.5rem;
+      opacity: 0.7;
+    }
+
+    /* === LINKS === */
+    .links {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .links a {
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .links a:hover {
+      color: var(--bright);
+      border-color: var(--slime);
+    }
+
+    /* === FOOTER === */
+    footer {
+      position: fixed;
+      bottom: 1rem;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.15em;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+
+  <section class="hero">
+    <div class="logo-wrap">
+      <img src="GOBLINFIENDpixelLOGO4.png" alt="Goblin Fiend Studios Logo"/>
+    </div>
+
+    <h1 class="studio-name">Goblin Fiend Studios</h1>
+    <p class="tagline">Independent Game Development</p>
+
+    <div class="badge">Something wicked this way comes</div>
+
+    <nav class="links">
+      <a href="#">Devlog</a>
+      <a href="#">About</a>
+      <a href="https://twitter.com/" target="_blank">Twitter</a>
+      <a href="https://discord.gg/" target="_blank">Discord</a>
+    </nav>
+  </section>
+
+  <footer>© 2026 Goblin Fiend Studios — goblinfiend.com</footer>
+
+</body>
+</html>
