@@ -220,11 +220,11 @@
 
     <div class="bubbles">
       <a href="#" class="bubble-wrap" id="bubble-merch">
-        <canvas width="190" height="190"></canvas>
+        <canvas width="220" height="220"></canvas>
         <span class="bubble-label" style="font-size:0.62rem;">Merchandise</span>
       </a>
       <a href="#" class="bubble-wrap" id="bubble-art">
-        <canvas width="175" height="175"></canvas>
+        <canvas width="200" height="200"></canvas>
         <span class="bubble-label">Art</span>
       </a>
     </div>
@@ -253,18 +253,23 @@
       const ctx = canvas.getContext('2d');
       const W = canvas.width, H = canvas.height;
       const cx = W / 2, cy = H / 2;
-      const R = W * 0.40;
+      const R = W * 0.34;
       const points = 10;
-      let hueShift = opts.offset * 30 || 0;
+      let hueShift = opts.hueStart || 0;
+
+      // Each bubble gets its own unique frequency/amplitude set
+      const f = opts.freqs;
+      const a = opts.amps;
 
       function blobPath(time) {
         const pts = [];
         for (let i = 0; i < points; i++) {
           const angle = (i / points) * Math.PI * 2 - Math.PI / 2;
-          const n1 = Math.sin(angle * 2 + time * 0.6) * 0.10;
-          const n2 = Math.cos(angle * 3 - time * 0.4) * 0.07;
-          const n3 = Math.sin(angle * 1.5 + time * 0.9) * 0.05;
-          const r = R * (1 + n1 + n2 + n3);
+          const n1 = Math.sin(angle * f[0] + time * f[1]) * a[0];
+          const n2 = Math.cos(angle * f[2] - time * f[3]) * a[1];
+          const n3 = Math.sin(angle * f[4] + time * f[5]) * a[2];
+          const n4 = Math.cos(angle * f[6] - time * f[7]) * a[3];
+          const r = R * (1 + n1 + n2 + n3 + n4);
           pts.push({ x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r });
         }
         ctx.beginPath();
@@ -343,10 +348,32 @@
     }
 
     const blobs = [];
+    const bubbleConfigs = [
+      {
+        // Merchandise — slower, broader warps
+        hueStart: 20,
+        freqs: [2.0, 0.55, 3.1, 0.38, 1.7, 0.82, 4.2, 0.27],
+        amps:  [0.10, 0.08, 0.06, 0.09],
+        wobbleSpeed: 0.85,
+        wobbleAmp: 7,
+        wobblePhase: 0,
+      },
+      {
+        // Art — faster, more erratic
+        hueStart: 140,
+        freqs: [1.5, 0.73, 2.7, 0.61, 3.8, 0.44, 1.2, 0.95],
+        amps:  [0.09, 0.11, 0.07, 0.06],
+        wobbleSpeed: 1.15,
+        wobbleAmp: 9,
+        wobblePhase: 2.1,
+      },
+    ];
+
     document.querySelectorAll('.bubble-wrap').forEach((wrap, i) => {
       const canvas = wrap.querySelector('canvas');
-      const drawFn = createBlob(canvas, { offset: i * 1.8 });
-      blobs.push({ wrap, drawFn, offset: i * 1.2 });
+      const cfg = bubbleConfigs[i];
+      const drawFn = createBlob(canvas, cfg);
+      blobs.push({ wrap, drawFn, cfg });
     });
 
     let globalT = 0;
@@ -356,12 +383,10 @@
       globalT += 0.010;
       globalHue += 0.35;
 
-      blobs.forEach(({ wrap, drawFn, offset }) => {
-        const t = globalT + offset;
-        // smooth sine wobble — position only, no scale jitter
-        const y = Math.sin(t * 0.9) * 7;
+      blobs.forEach(({ wrap, drawFn, cfg }) => {
+        const y = Math.sin(globalT * cfg.wobbleSpeed + cfg.wobblePhase) * cfg.wobbleAmp;
         wrap.style.transform = `translateY(${y}px)`;
-        drawFn(globalT + offset * 0.5, globalHue + offset * 40);
+        drawFn(globalT, globalHue + cfg.hueStart);
       });
 
       requestAnimationFrame(masterLoop);
