@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Goblin Fiend Studios</title>
+  <link rel="icon" type="image/png" href="GOBLINFIENDpixelLOGO4.png"/>
+  <link rel="apple-touch-icon" href="GOBLINFIENDpixelLOGO4.png"/>
   <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Cinzel:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -68,18 +70,38 @@
     .logo-wrap {
       position: relative;
       margin-bottom: 2rem;
+      display: inline-block;
+    }
+
+    /* Fallback glow for mobile — sits behind the image */
+    .logo-wrap::before {
+      content: '';
+      position: absolute;
+      inset: -20px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, rgba(74,140,28,0.45) 0%, rgba(26,74,10,0.25) 50%, transparent 75%);
+      animation: glow-pulse 4s ease-in-out infinite;
+      z-index: 0;
+      pointer-events: none;
     }
 
     .logo-wrap img {
-      width: clamp(140px, 28vw, 260px);
+      position: relative;
+      z-index: 1;
+      width: clamp(140px, 40vw, 260px);
       image-rendering: pixelated;
-      filter: drop-shadow(0 0 18px #4a8c1c88) drop-shadow(0 0 40px #1a4a0a);
+      filter: drop-shadow(0 0 16px rgba(74,140,28,0.7)) drop-shadow(0 0 36px rgba(26,74,10,0.9));
       animation: pulse 4s ease-in-out infinite;
     }
 
+    @keyframes glow-pulse {
+      0%, 100% { opacity: 0.7; transform: scale(1); }
+      50%       { opacity: 1;   transform: scale(1.08); }
+    }
+
     @keyframes pulse {
-      0%, 100% { filter: drop-shadow(0 0 18px #4a8c1c88) drop-shadow(0 0 40px #1a4a0a); }
-      50%       { filter: drop-shadow(0 0 28px #6dbf2acc) drop-shadow(0 0 60px #2a6a0a); }
+      0%, 100% { filter: drop-shadow(0 0 16px rgba(74,140,28,0.7))  drop-shadow(0 0 36px rgba(26,74,10,0.9)); }
+      50%       { filter: drop-shadow(0 0 26px rgba(109,191,42,0.85)) drop-shadow(0 0 55px rgba(42,106,10,0.95)); }
     }
 
     .studio-name {
@@ -98,7 +120,7 @@
 
     .tagline {
       font-family: 'Cinzel', serif;
-      font-size: clamp(0.7rem, 1.8vw, 1rem);
+      font-size: clamp(0.75rem, 3vw, 1rem);
       color: var(--muted);
       letter-spacing: 0.35em;
       text-transform: uppercase;
@@ -138,6 +160,13 @@
       margin-bottom: 2.5rem;
       flex-wrap: wrap;
       align-items: center;
+    }
+
+    @media (max-width: 480px) {
+      .bubbles {
+        gap: 1.2rem;
+        margin-bottom: 1.5rem;
+      }
     }
 
     .bubble-wrap {
@@ -220,11 +249,11 @@
 
     <div class="bubbles">
       <a href="#" class="bubble-wrap" id="bubble-merch">
-        <canvas width="220" height="220"></canvas>
+        <canvas></canvas>
         <span class="bubble-label" style="font-size:0.62rem;">Merchandise</span>
       </a>
       <a href="#" class="bubble-wrap" id="bubble-art">
-        <canvas width="200" height="200"></canvas>
+        <canvas></canvas>
         <span class="bubble-label">Art</span>
       </a>
     </div>
@@ -249,15 +278,34 @@
   </section>
 
   <script>
-    function createBlob(canvas, opts) {
+    // Responsive canvas size based on screen width
+    function getBubbleSize(index) {
+      const vw = window.innerWidth;
+      if (vw <= 380) return index === 0 ? 130 : 120;
+      if (vw <= 480) return index === 0 ? 155 : 140;
+      if (vw <= 768) return index === 0 ? 185 : 170;
+      return index === 0 ? 220 : 200;
+    }
+
+    function setupCanvas(canvas, size) {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width  = size * dpr;
+      canvas.height = size * dpr;
+      canvas.style.width  = size + 'px';
+      canvas.style.height = size + 'px';
       const ctx = canvas.getContext('2d');
-      const W = canvas.width, H = canvas.height;
+      ctx.scale(dpr, dpr);
+      return { ctx, size };
+    }
+
+    function createBlob(canvas, opts, size) {
+      const { ctx } = setupCanvas(canvas, size);
+      const W = size, H = size;
       const cx = W / 2, cy = H / 2;
       const R = W * 0.34;
       const points = 10;
       let hueShift = opts.hueStart || 0;
 
-      // Each bubble gets its own unique frequency/amplitude set
       const f = opts.freqs;
       const a = opts.amps;
 
@@ -350,7 +398,6 @@
     const blobs = [];
     const bubbleConfigs = [
       {
-        // Merchandise — slower, broader warps
         hueStart: 20,
         freqs: [2.0, 0.55, 3.1, 0.38, 1.7, 0.82, 4.2, 0.27],
         amps:  [0.10, 0.08, 0.06, 0.09],
@@ -359,7 +406,6 @@
         wobblePhase: 0,
       },
       {
-        // Art — faster, more erratic
         hueStart: 140,
         freqs: [1.5, 0.73, 2.7, 0.61, 3.8, 0.44, 1.2, 0.95],
         amps:  [0.09, 0.11, 0.07, 0.06],
@@ -371,15 +417,27 @@
 
     document.querySelectorAll('.bubble-wrap').forEach((wrap, i) => {
       const canvas = wrap.querySelector('canvas');
+      const size = getBubbleSize(i);
       const cfg = bubbleConfigs[i];
-      const drawFn = createBlob(canvas, cfg);
+      const drawFn = createBlob(canvas, cfg, size);
       blobs.push({ wrap, drawFn, cfg });
     });
 
     let globalT = 0;
     let globalHue = 0;
+    let animPaused = false;
+    let rafId = null;
+
+    // Pause animation when tab is hidden (saves mobile battery)
+    document.addEventListener('visibilitychange', () => {
+      animPaused = document.hidden;
+      if (!animPaused && !rafId) rafId = requestAnimationFrame(masterLoop);
+    });
 
     function masterLoop() {
+      rafId = null;
+      if (animPaused) return;
+
       globalT += 0.010;
       globalHue += 0.35;
 
@@ -389,10 +447,10 @@
         drawFn(globalT, globalHue + cfg.hueStart);
       });
 
-      requestAnimationFrame(masterLoop);
+      rafId = requestAnimationFrame(masterLoop);
     }
 
-    requestAnimationFrame(masterLoop);
+    rafId = requestAnimationFrame(masterLoop);
   </script>
 
   <footer>© 2026 Goblin Fiend Studios — goblinfiend.com</footer>
