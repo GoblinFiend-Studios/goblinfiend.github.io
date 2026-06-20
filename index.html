@@ -444,8 +444,8 @@
       const delta = Math.min(timestamp - lastTime, 50) / 1000; // seconds
       lastTime = timestamp;
 
-      globalT   += delta * 0.6;   // equivalent to original 0.010 at 60fps
-      globalHue += delta * 21;    // equivalent to original 0.35 at 60fps
+      globalT   += delta * 0.8;   // tuned to match original speed across browsers
+      globalHue += delta * 28;
 
       blobs.forEach(({ wrap, drawFn, cfg }) => {
         const y = Math.sin(globalT * cfg.wobbleSpeed + cfg.wobblePhase) * cfg.wobbleAmp;
