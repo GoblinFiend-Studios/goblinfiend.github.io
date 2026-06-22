@@ -263,22 +263,22 @@
 
     /* === VISITOR COUNTER === */
     .visitor-counter {
-      position: fixed;
+      position: absolute;
       top: 1rem;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.2rem;
+      gap: 0.15rem;
       z-index: 150;
       pointer-events: none;
     }
 
     .counter-label {
       font-family: 'Share Tech Mono', monospace;
-      font-size: 0.45rem;
-      letter-spacing: 0.3em;
+      font-size: 0.38rem;
+      letter-spacing: 0.25em;
       color: var(--muted);
       text-transform: uppercase;
       opacity: 0.7;
@@ -286,10 +286,10 @@
 
     .counter-digits {
       font-family: 'Share Tech Mono', monospace;
-      font-size: 1rem;
-      letter-spacing: 0.25em;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
       color: var(--slime);
-      text-shadow: 0 0 8px var(--slime), 0 0 18px #2a5a0a;
+      text-shadow: 0 0 6px var(--slime), 0 0 14px #2a5a0a;
       opacity: 0.85;
     }
 
