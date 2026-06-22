@@ -216,13 +216,12 @@
       transform: translateX(-50%);
       z-index: 150;
       pointer-events: none;
-      /* Only fix to viewport when there's enough vertical room */
-      max-height: calc(100vh - 6rem);
-      overflow: visible;
+      width: max-content;
+      max-width: 95vw;
     }
 
-    /* When screen is too short (zoomed in / small phone), fall back to in-flow */
-    @media (max-height: 750px) {
+    /* Fall back to in-flow when screen is too short (zoomed in / small) */
+    @media (max-height: 850px) {
       .links-wrapper {
         position: relative;
         bottom: auto;
@@ -230,25 +229,35 @@
         transform: none;
         margin-top: 1rem;
         padding-bottom: 1rem;
+        width: 100%;
+        max-width: 100%;
       }
     }
 
     .links {
       display: flex;
-      gap: 1.2rem;
-      flex-wrap: wrap;
+      gap: 1rem;
+      flex-wrap: nowrap;
       justify-content: center;
       pointer-events: all;
+      width: 100%;
+    }
+
+    /* On very narrow screens, allow wrapping only when in-flow (not fixed) */
+    @media (max-width: 480px) {
+      .links-wrapper:not([style]) .links {
+        flex-wrap: wrap;
+      }
     }
 
     .links a {
       font-family: 'Cinzel', serif;
-      font-size: clamp(0.65rem, 2vw, 0.8rem);
-      letter-spacing: 0.18em;
+      font-size: clamp(0.5rem, 1.8vw, 0.8rem);
+      letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--muted);
       text-decoration: none;
-      padding: 0.4rem 0;
+      padding: 0.3rem 0;
       border-bottom: 1px solid transparent;
       transition: color 0.2s, border-color 0.2s;
       white-space: nowrap;
