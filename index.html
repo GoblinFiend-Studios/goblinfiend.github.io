@@ -261,21 +261,49 @@
       pointer-events: none;
     }
 
-    /* === FOOTER === */
-    footer {
+    /* === VISITOR COUNTER === */
+    .visitor-counter {
       position: absolute;
-      bottom: 1rem;
-      left: 1.2rem;
-      font-size: 7px;
-      color: var(--muted);
-      letter-spacing: 1.5px;
-      opacity: 0.4;
+      top: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+      z-index: 150;
+      pointer-events: none;
     }
+
+    .counter-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.45rem;
+      letter-spacing: 0.3em;
+      color: var(--muted);
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
+
+    .counter-digits {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1rem;
+      letter-spacing: 0.25em;
+      color: var(--slime);
+      text-shadow: 0 0 8px var(--slime), 0 0 18px #2a5a0a;
+      opacity: 0.85;
+    }
+
+
   </style>
 </head>
 <body>
 
   <section class="hero">
+
+    <div class="visitor-counter">
+      <span class="counter-label">visitors</span>
+      <span class="counter-digits" id="counter-display">0000000</span>
+    </div>
 
     <div class="bubbles">
       <a href="https://goblinfiendstudios.printify.me/" target="_blank" rel="noopener" class="bubble-wrap" id="bubble-merch">
@@ -305,8 +333,7 @@
       <a href="https://soundcloud.com/goblinfiend" target="_blank">SoundCloud</a>
       <a href="#" style="opacity:0.4; cursor:not-allowed;">Spotify — Coming Soon</a>
     </nav>
-    <footer>© 2026 <a href="https://goblinfiend.com" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">goblinfiend</a> — goblinfiend.com</footer>
-  </section>
+
 
   <script>
     // Responsive canvas size based on screen width
@@ -502,6 +529,42 @@
     }
 
     startLoop();
+  </script>
+
+  <script>
+    // === VISITOR COUNTER (persistent shared storage) ===
+    (async () => {
+      const display = document.getElementById('counter-display');
+
+      function pad(n) {
+        return String(n).padStart(7, '0');
+      }
+
+      // Animate count rolling up from 0 to target
+      function animateCount(target) {
+        const duration = 1200;
+        const start = performance.now();
+        const from = 0;
+
+        function step(now) {
+          const t = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - t, 3);
+          const current = Math.round(from + (target - from) * eased);
+          display.textContent = pad(current);
+          if (t < 1) requestAnimationFrame(step);
+        }
+
+        requestAnimationFrame(step);
+      }
+
+      try {
+        const res = await fetch('/.netlify/functions/counter', { method: 'POST' });
+        const data = await res.json();
+        animateCount(data.count);
+      } catch (err) {
+        display.textContent = '-------';
+      }
+    })();
   </script>
 
   <div class="bottom-glow"></div>
