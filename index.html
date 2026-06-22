@@ -264,7 +264,7 @@
     /* === VISITOR COUNTER === */
     .visitor-counter {
       position: absolute;
-      top: 1rem;
+      bottom: 1.2rem;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -532,36 +532,69 @@
   </script>
 
   <script>
-    // === VISITOR COUNTER (persistent shared storage) ===
+    // === VISITOR COUNTER ===
     (async () => {
       const display = document.getElementById('counter-display');
+      const GLITCH_CHARS = '0123456789';
 
       function pad(n) {
         return String(n).padStart(7, '0');
       }
 
-      // Animate count rolling up from 0 to target
-      function animateCount(target) {
-        const duration = 1200;
-        const start = performance.now();
-        const from = 0;
-
-        function step(now) {
-          const t = Math.min((now - start) / duration, 1);
-          const eased = 1 - Math.pow(1 - t, 3);
-          const current = Math.round(from + (target - from) * eased);
-          display.textContent = pad(current);
-          if (t < 1) requestAnimationFrame(step);
-        }
-
-        requestAnimationFrame(step);
+      function randomDigit() {
+        return GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
       }
 
-      try {
-        const res = await fetch('/.netlify/functions/counter', { method: 'POST' });
-        const data = await res.json();
-        animateCount(data.count);
-      } catch (err) {
+      // Glitch reveal: scramble digits, then lock them in one by one left to right
+      function glitchReveal(target) {
+        const targetStr = pad(target);
+        const len = targetStr.length;
+        let locked = 0;
+        let frame = 0;
+
+        display.textContent = Array.from({length: len}, () => randomDigit()).join('');
+
+        const interval = setInterval(() => {
+          frame++;
+          let result = '';
+
+          for (let i = 0; i < len; i++) {
+            if (i < locked) {
+              result += targetStr[i]; // locked in
+            } else {
+              result += randomDigit(); // still scrambling
+            }
+          }
+
+          display.textContent = result;
+
+          // Every 6 frames, lock in the next digit
+          if (frame % 6 === 0 && locked < len) {
+            locked++;
+          }
+
+          if (locked >= len) {
+            clearInterval(interval);
+            display.textContent = targetStr;
+          }
+        }, 40);
+      }
+
+      async function getCount() {
+        try {
+          const res = await fetch('https://api.countapi.xyz/hit/goblinfiendstudios/visits');
+          const data = await res.json();
+          return data.value;
+        } catch (e) {}
+        return null;
+      }
+
+      display.textContent = '???????';
+      const count = await getCount();
+
+      if (count !== null) {
+        glitchReveal(count);
+      } else {
         display.textContent = '-------';
       }
     })();
