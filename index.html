@@ -85,6 +85,9 @@
       position: relative;
       z-index: 1;
       width: clamp(120px, 36vw, 240px);
+      height: auto;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
       image-rendering: pixelated;
       filter: drop-shadow(0 0 16px rgba(74,140,28,0.7)) drop-shadow(0 0 36px rgba(26,74,10,0.9));
       animation: pulse 4s ease-in-out infinite;
@@ -127,14 +130,15 @@
       border: 1px solid var(--slime);
       color: var(--glow);
       font-family: 'Share Tech Mono', monospace;
-      font-size: clamp(0.6rem, 2vw, 0.75rem);
-      letter-spacing: 0.25em;
+      font-size: clamp(0.45rem, 3.2vw, 0.75rem);
+      letter-spacing: 0.15em;
       text-transform: uppercase;
-      padding: 0.45rem 1.2rem;
+      padding: 0.45rem 1rem;
       position: relative;
       background: #0a1a0633;
       box-shadow: 0 0 12px #1a4a0a, inset 0 0 10px #0a1a0655;
       margin-bottom: 1.5rem;
+      white-space: nowrap;
     }
 
     .badge::before,
@@ -218,7 +222,7 @@
     }
 
     /* When screen is too short (zoomed in / small phone), fall back to in-flow */
-    @media (max-height: 650px) {
+    @media (max-height: 750px) {
       .links-wrapper {
         position: relative;
         bottom: auto;
