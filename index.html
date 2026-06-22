@@ -263,8 +263,8 @@
 
     /* === VISITOR COUNTER === */
     .visitor-counter {
-      position: absolute;
-      bottom: 1.2rem;
+      position: fixed;
+      top: 1rem;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -532,8 +532,11 @@
   </script>
 
   <script>
-    // === VISITOR COUNTER ===
+    // === VISITOR COUNTER (Supabase) ===
     (async () => {
+      const SUPABASE_URL = 'https://wpvgszvmcenlfldodswo.supabase.co';
+      const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndwdmdzenZtY2VubGZsZG9kc3dvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNDgzNDgsImV4cCI6MjA5NzcyNDM0OH0.3cqQnB_Z7t6e07wdbvVErIvd-gDPIyGSfbTpdY9mSgQ';
+
       const display = document.getElementById('counter-display');
       const GLITCH_CHARS = '0123456789';
 
@@ -560,15 +563,14 @@
 
           for (let i = 0; i < len; i++) {
             if (i < locked) {
-              result += targetStr[i]; // locked in
+              result += targetStr[i];
             } else {
-              result += randomDigit(); // still scrambling
+              result += randomDigit();
             }
           }
 
           display.textContent = result;
 
-          // Every 6 frames, lock in the next digit
           if (frame % 6 === 0 && locked < len) {
             locked++;
           }
@@ -580,21 +582,53 @@
         }, 40);
       }
 
-      async function getCount() {
-        try {
-          const res = await fetch('https://api.countapi.xyz/hit/goblinfiendstudios/visits');
-          const data = await res.json();
-          return data.value;
-        } catch (e) {}
-        return null;
+      // Generate or retrieve a persistent visitor fingerprint
+      function getVisitorId() {
+        const KEY = 'gfs_visitor_id';
+        let id = localStorage.getItem(KEY);
+        if (!id) {
+          id = 'v_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 9);
+          localStorage.setItem(KEY, id);
+        }
+        return id;
+      }
+
+      async function trackAndCount() {
+        const visitorId = getVisitorId();
+        const headers = {
+          'apikey': SUPABASE_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'resolution=merge-duplicates'
+        };
+
+        // Upsert this visitor (no-op if already exists, thanks to unique visitor_id)
+        await fetch(`${SUPABASE_URL}/rest/v1/visitors`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ visitor_id: visitorId })
+        });
+
+        // Get total unique visitor count
+        const countRes = await fetch(`${SUPABASE_URL}/rest/v1/visitors?select=visitor_id`, {
+          headers: { ...headers, 'Prefer': 'count=exact', 'Range': '0-0' }
+        });
+
+        const total = parseInt(countRes.headers.get('content-range')?.split('/')[1] || '0', 10);
+        return isNaN(total) ? null : total;
       }
 
       display.textContent = '???????';
-      const count = await getCount();
 
-      if (count !== null) {
-        glitchReveal(count);
-      } else {
+      try {
+        const count = await trackAndCount();
+        if (count !== null) {
+          glitchReveal(count);
+        } else {
+          display.textContent = '-------';
+        }
+      } catch (e) {
+        console.error('Visitor counter error:', e);
         display.textContent = '-------';
       }
     })();
