@@ -49,7 +49,7 @@
       align-items: center;
       justify-content: center;
       position: relative;
-      padding: 2rem;
+      padding: 2rem 2rem 0;
       background:
         radial-gradient(ellipse 60% 50% at 50% 40%, #1a3a0a 0%, transparent 70%),
         var(--black);
@@ -185,12 +185,20 @@
       text-decoration: none;
       cursor: pointer;
       display: block;
+      /* GPU layer promotion — prevents label/canvas desync */
+      will-change: transform;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
     }
 
     .bubble-wrap canvas {
       display: block;
       filter: drop-shadow(0 0 14px #3a7a1466) drop-shadow(0 0 30px #1a4a0a33);
       transition: filter 0.3s;
+      /* Keep canvas on same GPU layer as wrap */
+      will-change: transform;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
     }
 
     .bubble-wrap:hover canvas {
@@ -213,6 +221,10 @@
       pointer-events: none;
       text-align: center;
       padding: 1rem;
+      /* Promoted to same GPU layer — moves with canvas in same composite step */
+      will-change: transform;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
     }
 
     /* === LINKS === */
@@ -240,17 +252,28 @@
       border-color: var(--slime);
     }
 
-    /* === FOOTER === */
-    footer {
+    /* === VIEWPORT-FIXED BOTTOM GLOW LINE === */
+    .bottom-glow {
       position: fixed;
-      bottom: 1rem;
+      bottom: 0;
       left: 0;
       right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--slime), var(--bright), var(--slime), transparent);
+      box-shadow: 0 0 18px var(--slime), 0 0 40px #2a5a0a;
+      z-index: 200;
+      pointer-events: none;
+    }
+
+    /* === FOOTER === */
+    footer {
+      position: relative;
       text-align: center;
-      font-size: 0.65rem;
+      font-size: 10px;
       color: var(--muted);
-      letter-spacing: 0.15em;
+      letter-spacing: 2px;
       opacity: 0.5;
+      padding: 1.2rem 0 1.5rem;
     }
   </style>
 </head>
@@ -259,11 +282,11 @@
   <section class="hero">
 
     <div class="bubbles">
-      <a href="#" class="bubble-wrap" id="bubble-merch">
+      <a href="https://goblinfiendstudios.printify.me/" target="_blank" rel="noopener" class="bubble-wrap" id="bubble-merch">
         <canvas></canvas>
         <span class="bubble-label" style="font-size:0.62rem;">Merchandise</span>
       </a>
-      <a href="shop.html" class="bubble-wrap" id="bubble-art">
+      <a href="#" class="bubble-wrap" id="bubble-art" title="Art — coming soon">
         <canvas></canvas>
         <span class="bubble-label">Art</span>
       </a>
@@ -441,15 +464,16 @@
 
     function masterLoop(timestamp) {
       if (lastTime === null) lastTime = timestamp;
-      const delta = Math.min(timestamp - lastTime, 50) / 1000; // seconds
+      const delta = Math.min(timestamp - lastTime, 33) / 1000; // cap at ~30fps worth to prevent tab-switch jumps
       lastTime = timestamp;
 
-      globalT   += delta * 0.8;   // tuned to match original speed across browsers
+      globalT   += delta * 0.8;
       globalHue += delta * 28;
 
       blobs.forEach(({ wrap, drawFn, cfg }) => {
         const y = Math.sin(globalT * cfg.wobbleSpeed + cfg.wobblePhase) * cfg.wobbleAmp;
-        wrap.style.transform = `translateY(${y}px)`;
+        // translate3d keeps wrap on its GPU layer — label composites with it, no desync
+        wrap.style.transform = `translate3d(0, ${y}px, 0)`;
         drawFn(globalT, globalHue + cfg.hueStart);
       });
 
@@ -483,7 +507,8 @@
     startLoop();
   </script>
 
-  <footer>© 2026 Goblin Fiend Studios — goblinfiend.com</footer>
+  <div class="bottom-glow"></div>
+  <footer>© 2026 <a href="https://goblinfiend.com" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">goblinfiend</a> — goblinfiend.com</footer>
 
 </body>
 </html>
