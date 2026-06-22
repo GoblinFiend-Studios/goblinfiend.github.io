@@ -6,6 +6,7 @@
   <title>Goblin Fiend Studios</title>
   <link rel="icon" type="image/png" href="GOBLINFIENDpixelLOGO4.png"/>
   <link rel="apple-touch-icon" href="GOBLINFIENDpixelLOGO4.png"/>
+  <!-- font-display=swap prevents invisible text during load -->
   <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Cinzel:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -32,9 +33,7 @@
 
     /* === NO SCROLL ON DESKTOP === */
     @media (min-width: 769px) {
-      html, body {
-        overflow: hidden;
-      }
+      html, body { overflow: hidden; }
     }
 
     /* === NOISE OVERLAY === */
@@ -56,20 +55,19 @@
       align-items: center;
       justify-content: center;
       position: relative;
-      padding: 2rem 2rem 0;
+      padding: 4rem 2rem 5rem; /* top pad for counter, bottom pad for sticky nav */
       background:
         radial-gradient(ellipse 60% 50% at 50% 40%, #1a3a0a 0%, transparent 70%),
         var(--black);
     }
 
-
+    /* === LOGO === */
     .logo-wrap {
       position: relative;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
       display: inline-block;
     }
 
-    /* Fallback glow for mobile — sits behind the image */
     .logo-wrap::before {
       content: '';
       position: absolute;
@@ -79,7 +77,6 @@
       animation: glow-pulse 4s ease-in-out infinite;
       z-index: 0;
       pointer-events: none;
-      /* Force GPU layer on iOS */
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
     }
@@ -87,7 +84,7 @@
     .logo-wrap img {
       position: relative;
       z-index: 1;
-      width: clamp(140px, 40vw, 260px);
+      width: clamp(120px, 36vw, 240px);
       image-rendering: pixelated;
       filter: drop-shadow(0 0 16px rgba(74,140,28,0.7)) drop-shadow(0 0 36px rgba(26,74,10,0.9));
       animation: pulse 4s ease-in-out infinite;
@@ -97,58 +94,47 @@
       0%, 100% { opacity: 0.7; transform: scale(1); }
       50%       { opacity: 1;   transform: scale(1.08); }
     }
-    @-webkit-keyframes glow-pulse {
-      0%, 100% { opacity: 0.7; -webkit-transform: scale(1); }
-      50%       { opacity: 1;   -webkit-transform: scale(1.08); }
-    }
-
     @keyframes pulse {
       0%, 100% { filter: drop-shadow(0 0 16px rgba(74,140,28,0.7))  drop-shadow(0 0 36px rgba(26,74,10,0.9)); }
       50%       { filter: drop-shadow(0 0 26px rgba(109,191,42,0.85)) drop-shadow(0 0 55px rgba(42,106,10,0.95)); }
     }
-    @-webkit-keyframes pulse {
-      0%, 100% { -webkit-filter: drop-shadow(0 0 16px rgba(74,140,28,0.7))  drop-shadow(0 0 36px rgba(26,74,10,0.9)); }
-      50%       { -webkit-filter: drop-shadow(0 0 26px rgba(109,191,42,0.85)) drop-shadow(0 0 55px rgba(42,106,10,0.95)); }
-    }
 
+    /* === TEXT === */
     .studio-name {
       font-family: 'UnifrakturMaguntia', cursive;
-      font-size: clamp(2.4rem, 7vw, 5rem);
+      font-size: clamp(2rem, 7vw, 5rem);
       color: var(--bright);
-      text-shadow:
-        0 0 10px var(--slime),
-        0 0 30px #2a5a0a,
-        2px 2px 0 #0a1208;
+      text-shadow: 0 0 10px var(--slime), 0 0 30px #2a5a0a, 2px 2px 0 #0a1208;
       letter-spacing: 0.04em;
       text-align: center;
       line-height: 1;
-      margin-bottom: 0.6rem;
+      margin-bottom: 0.5rem;
     }
 
     .tagline {
       font-family: 'Cinzel', serif;
-      font-size: clamp(0.75rem, 3vw, 1rem);
+      font-size: clamp(0.65rem, 2.5vw, 0.9rem);
       color: var(--muted);
-      letter-spacing: 0.35em;
+      letter-spacing: 0.3em;
       text-transform: uppercase;
       text-align: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.2rem;
     }
 
-    /* === COMING SOON BADGE === */
+    /* === BADGE === */
     .badge {
       display: inline-block;
       border: 1px solid var(--slime);
       color: var(--glow);
       font-family: 'Share Tech Mono', monospace;
-      font-size: 0.75rem;
-      letter-spacing: 0.3em;
+      font-size: clamp(0.6rem, 2vw, 0.75rem);
+      letter-spacing: 0.25em;
       text-transform: uppercase;
-      padding: 0.5rem 1.4rem;
+      padding: 0.45rem 1.2rem;
       position: relative;
       background: #0a1a0633;
       box-shadow: 0 0 12px #1a4a0a, inset 0 0 10px #0a1a0655;
-      margin-bottom: 1.8rem;
+      margin-bottom: 1.5rem;
     }
 
     .badge::before,
@@ -162,18 +148,15 @@
     /* === SLIME BUBBLES === */
     .bubbles {
       display: flex;
-      gap: 2.5rem;
+      gap: 2rem;
       justify-content: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.2rem;
       flex-wrap: wrap;
       align-items: center;
     }
 
     @media (max-width: 480px) {
-      .bubbles {
-        gap: 1.2rem;
-        margin-bottom: 1.5rem;
-      }
+      .bubbles { gap: 1rem; margin-bottom: 1rem; }
     }
 
     .bubble-wrap {
@@ -181,7 +164,6 @@
       text-decoration: none;
       cursor: pointer;
       display: block;
-      /* GPU layer promotion — prevents label/canvas desync */
       will-change: transform;
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
@@ -191,13 +173,13 @@
       display: block;
       filter: drop-shadow(0 0 14px #3a7a1466) drop-shadow(0 0 30px #1a4a0a33);
       transition: filter 0.3s;
-      /* Keep canvas on same GPU layer as wrap */
       will-change: transform;
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
     }
 
-    .bubble-wrap:hover canvas {
+    .bubble-wrap:hover canvas,
+    .bubble-wrap:focus canvas {
       filter: drop-shadow(0 0 24px #6dbf2a88) drop-shadow(0 0 50px #2a6a0a55);
     }
 
@@ -217,35 +199,79 @@
       pointer-events: none;
       text-align: center;
       padding: 1rem;
-      /* Promoted to same GPU layer — moves with canvas in same composite step */
       will-change: transform;
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
     }
 
-    /* === LINKS === */
+    /* === STICKY SOCIAL LINKS === */
+    .links-sentinel {
+      /* invisible marker — when this scrolls out of view, nav goes sticky */
+      height: 1px;
+      width: 100%;
+      pointer-events: none;
+    }
+
+    .links-wrapper {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
     .links {
       display: flex;
-      gap: 1.5rem;
+      gap: 1.2rem;
       flex-wrap: wrap;
       justify-content: center;
+      padding: 0.6rem 1rem;
+      transition: background 0.3s, backdrop-filter 0.3s, box-shadow 0.3s;
+      border-radius: 2px;
+    }
+
+    /* When sentinel leaves viewport, JS adds .is-sticky to .links-wrapper */
+    .links-wrapper.is-sticky {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 180;
+      justify-content: center;
+      padding: 0 1rem;
+    }
+
+    .links-wrapper.is-sticky .links {
+      width: 100%;
+      background: rgba(5, 10, 4, 0.88);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(74, 140, 28, 0.3);
+      box-shadow: 0 -4px 24px rgba(26, 74, 10, 0.5);
+      border-radius: 0;
+      padding: 0.7rem 1rem;
     }
 
     .links a {
       font-family: 'Cinzel', serif;
-      font-size: 0.8rem;
-      letter-spacing: 0.2em;
+      font-size: clamp(0.65rem, 2vw, 0.8rem);
+      letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--muted);
       text-decoration: none;
-      padding: 0.5rem 0;
+      padding: 0.4rem 0;
       border-bottom: 1px solid transparent;
       transition: color 0.2s, border-color 0.2s;
+      white-space: nowrap;
+      /* bigger tap target on mobile */
+      min-height: 44px;
+      display: flex;
+      align-items: center;
     }
 
-    .links a:hover {
+    .links a:hover,
+    .links a:focus {
       color: var(--bright);
       border-color: var(--slime);
+      outline: none;
     }
 
     /* === VIEWPORT-FIXED BOTTOM GLOW LINE === */
@@ -293,6 +319,17 @@
       opacity: 0.85;
     }
 
+    /* === MOBILE FINE-TUNING === */
+    @media (max-width: 380px) {
+      .studio-name { font-size: 1.9rem; }
+      .tagline { letter-spacing: 0.18em; font-size: 0.6rem; }
+      .badge { font-size: 0.55rem; letter-spacing: 0.18em; padding: 0.4rem 0.8rem; }
+      .links { gap: 0.8rem; }
+    }
+
+    @media (max-width: 768px) {
+      .hero { padding-top: 3.5rem; padding-bottom: 4.5rem; }
+    }
 
   </style>
 </head>
@@ -317,7 +354,7 @@
     </div>
 
     <div class="logo-wrap">
-      <img src="GOBLINFIENDpixelLOGO4.png" alt="Goblin Fiend Studios Logo"/>
+      <img src="GOBLINFIENDpixelLOGO4.png" alt="Goblin Fiend Studios Logo" width="240" height="240"/>
     </div>
 
     <h1 class="studio-name">Goblin Fiend Studios</h1>
@@ -325,23 +362,28 @@
 
     <div class="badge">Something wicked this way comes</div>
 
-    <nav class="links">
-      <a href="https://www.youtube.com/@GoblinFiendStudios" target="_blank">YouTube</a>
-      <a href="https://www.tiktok.com/@goblinfiend" target="_blank">TikTok</a>
-      <a href="https://www.instagram.com/goblinfiend.studios" target="_blank">Instagram</a>
-      <a href="https://x.com/GoblinFiend_Art" target="_blank">Twitter / X</a>
-      <a href="https://soundcloud.com/goblinfiend" target="_blank">SoundCloud</a>
-      <a href="#" style="opacity:0.4; cursor:not-allowed;">Spotify — Coming Soon</a>
-    </nav>
+    <!-- sentinel: when this scrolls out of view, social links go sticky -->
+    <div class="links-sentinel" id="links-sentinel"></div>
 
+    <div class="links-wrapper" id="links-wrapper">
+      <nav class="links">
+        <a href="https://www.youtube.com/@GoblinFiendStudios" target="_blank" rel="noopener">YouTube</a>
+        <a href="https://www.tiktok.com/@goblinfiend" target="_blank" rel="noopener">TikTok</a>
+        <a href="https://www.instagram.com/goblinfiend.studios" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://x.com/GoblinFiend_Art" target="_blank" rel="noopener">Twitter / X</a>
+        <a href="https://soundcloud.com/goblinfiend" target="_blank" rel="noopener">SoundCloud</a>
+      </nav>
+    </div>
+
+  </section>
 
   <script>
-    // Responsive canvas size based on screen width
+    // === RESPONSIVE BUBBLE SIZE ===
     function getBubbleSize(index) {
       const vw = window.innerWidth;
-      if (vw <= 380) return index === 0 ? 130 : 120;
-      if (vw <= 480) return index === 0 ? 155 : 140;
-      if (vw <= 768) return index === 0 ? 185 : 170;
+      if (vw <= 380) return index === 0 ? 120 : 110;
+      if (vw <= 480) return index === 0 ? 145 : 130;
+      if (vw <= 768) return index === 0 ? 175 : 160;
       return index === 0 ? 220 : 200;
     }
 
@@ -357,13 +399,12 @@
     }
 
     function createBlob(canvas, opts, size) {
-      const { ctx } = setupCanvas(canvas, size);
-      const W = size, H = size;
-      const cx = W / 2, cy = H / 2;
-      const R = W * 0.34;
+      let { ctx } = setupCanvas(canvas, size);
+      let W = size, H = size;
+      let cx = W / 2, cy = H / 2;
+      let R = W * 0.34;
       const points = 10;
       let hueShift = opts.hueStart || 0;
-
       const f = opts.freqs;
       const a = opts.amps;
 
@@ -394,7 +435,16 @@
         ctx.closePath();
       }
 
-      return function draw(time, hs) {
+      // Resize support — rebuild internal state when screen changes
+      function resize(newSize) {
+        W = newSize; H = newSize;
+        cx = W / 2; cy = H / 2;
+        R = W * 0.34;
+        const setup = setupCanvas(canvas, newSize);
+        ctx = setup.ctx;
+      }
+
+      function draw(time, hs) {
         hueShift = hs;
         ctx.clearRect(0, 0, W, H);
 
@@ -450,7 +500,9 @@
         ctx.fillStyle = 'rgba(255,255,255,0.30)';
         ctx.fill();
         ctx.restore();
-      };
+      }
+
+      return { draw, resize };
     }
 
     const blobs = [];
@@ -459,17 +511,13 @@
         hueStart: 20,
         freqs: [2.0, 0.55, 3.1, 0.38, 1.7, 0.82, 4.2, 0.27],
         amps:  [0.10, 0.08, 0.06, 0.09],
-        wobbleSpeed: 0.85,
-        wobbleAmp: 7,
-        wobblePhase: 0,
+        wobbleSpeed: 0.85, wobbleAmp: 7, wobblePhase: 0,
       },
       {
         hueStart: 140,
         freqs: [1.5, 0.73, 2.7, 0.61, 3.8, 0.44, 1.2, 0.95],
         amps:  [0.09, 0.11, 0.07, 0.06],
-        wobbleSpeed: 1.15,
-        wobbleAmp: 9,
-        wobblePhase: 2.1,
+        wobbleSpeed: 1.15, wobbleAmp: 9, wobblePhase: 2.1,
       },
     ];
 
@@ -477,10 +525,22 @@
       const canvas = wrap.querySelector('canvas');
       const size = getBubbleSize(i);
       const cfg = bubbleConfigs[i];
-      const drawFn = createBlob(canvas, cfg, size);
-      blobs.push({ wrap, drawFn, cfg });
+      const blob = createBlob(canvas, cfg, size);
+      blobs.push({ wrap, blob, cfg, index: i });
     });
 
+    // === RESIZE: rebuild canvases on orientation/window change ===
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        blobs.forEach(({ blob, index }) => {
+          blob.resize(getBubbleSize(index));
+        });
+      }, 150);
+    });
+
+    // === ANIMATION LOOP ===
     let globalT = 0;
     let globalHue = 0;
     let rafId = null;
@@ -488,17 +548,16 @@
 
     function masterLoop(timestamp) {
       if (lastTime === null) lastTime = timestamp;
-      const delta = Math.min(timestamp - lastTime, 33) / 1000; // cap at ~30fps worth to prevent tab-switch jumps
+      const delta = Math.min(timestamp - lastTime, 33) / 1000;
       lastTime = timestamp;
 
       globalT   += delta * 0.8;
       globalHue += delta * 28;
 
-      blobs.forEach(({ wrap, drawFn, cfg }) => {
+      blobs.forEach(({ wrap, blob, cfg }) => {
         const y = Math.sin(globalT * cfg.wobbleSpeed + cfg.wobblePhase) * cfg.wobbleAmp;
-        // translate3d keeps wrap on its GPU layer — label composites with it, no desync
         wrap.style.transform = `translate3d(0, ${y}px, 0)`;
-        drawFn(globalT, globalHue + cfg.hueStart);
+        blob.draw(globalT, globalHue + cfg.hueStart);
       });
 
       rafId = requestAnimationFrame(masterLoop);
@@ -510,25 +569,37 @@
       rafId = requestAnimationFrame(masterLoop);
     }
 
-    // iOS Safari can block rAF until user interacts — restart on any touch
+    function stopLoop() {
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    }
+
+    // Pause when hidden, resume when visible (works on all browsers incl iOS)
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopLoop(); else startLoop();
+    });
+
+    // iOS Safari may block rAF until user interacts
     document.addEventListener('touchstart', () => {
       if (!rafId) startLoop();
     }, { passive: true });
 
-    // Pause when hidden, restart when visible — but only on non-iOS to avoid Safari bugs
-    const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent);
-    if (!isIOS) {
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-          cancelAnimationFrame(rafId);
-          rafId = null;
-        } else {
-          startLoop();
-        }
-      });
-    }
-
     startLoop();
+  </script>
+
+  <script>
+    // === STICKY SOCIAL LINKS ===
+    const sentinel = document.getElementById('links-sentinel');
+    const wrapper  = document.getElementById('links-wrapper');
+
+    if ('IntersectionObserver' in window) {
+      const obs = new IntersectionObserver(
+        ([entry]) => {
+          wrapper.classList.toggle('is-sticky', !entry.isIntersecting);
+        },
+        { threshold: 0, rootMargin: '0px 0px -60px 0px' }
+      );
+      obs.observe(sentinel);
+    }
   </script>
 
   <script>
@@ -540,49 +611,26 @@
       const display = document.getElementById('counter-display');
       const GLITCH_CHARS = '0123456789';
 
-      function pad(n) {
-        return String(n).padStart(7, '0');
-      }
+      function pad(n) { return String(n).padStart(7, '0'); }
+      function randomDigit() { return GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)]; }
 
-      function randomDigit() {
-        return GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
-      }
-
-      // Glitch reveal: scramble digits, then lock them in one by one left to right
       function glitchReveal(target) {
         const targetStr = pad(target);
         const len = targetStr.length;
-        let locked = 0;
-        let frame = 0;
-
+        let locked = 0, frame = 0;
         display.textContent = Array.from({length: len}, () => randomDigit()).join('');
-
         const interval = setInterval(() => {
           frame++;
           let result = '';
-
           for (let i = 0; i < len; i++) {
-            if (i < locked) {
-              result += targetStr[i];
-            } else {
-              result += randomDigit();
-            }
+            result += i < locked ? targetStr[i] : randomDigit();
           }
-
           display.textContent = result;
-
-          if (frame % 6 === 0 && locked < len) {
-            locked++;
-          }
-
-          if (locked >= len) {
-            clearInterval(interval);
-            display.textContent = targetStr;
-          }
+          if (frame % 6 === 0 && locked < len) locked++;
+          if (locked >= len) { clearInterval(interval); display.textContent = targetStr; }
         }, 40);
       }
 
-      // Generate or retrieve a persistent visitor fingerprint
       function getVisitorId() {
         const KEY = 'gfs_visitor_id';
         let id = localStorage.getItem(KEY);
@@ -601,32 +649,23 @@
           'Content-Type': 'application/json',
           'Prefer': 'resolution=merge-duplicates'
         };
-
-        // Upsert this visitor (no-op if already exists, thanks to unique visitor_id)
         await fetch(`${SUPABASE_URL}/rest/v1/visitors`, {
           method: 'POST',
           headers,
           body: JSON.stringify({ visitor_id: visitorId })
         });
-
-        // Get total unique visitor count
         const countRes = await fetch(`${SUPABASE_URL}/rest/v1/visitors?select=visitor_id`, {
           headers: { ...headers, 'Prefer': 'count=exact', 'Range': '0-0' }
         });
-
         const total = parseInt(countRes.headers.get('content-range')?.split('/')[1] || '0', 10);
         return isNaN(total) ? null : total;
       }
 
       display.textContent = '???????';
-
       try {
         const count = await trackAndCount();
-        if (count !== null) {
-          glitchReveal(count);
-        } else {
-          display.textContent = '-------';
-        }
+        if (count !== null) glitchReveal(count);
+        else display.textContent = '-------';
       } catch (e) {
         console.error('Visitor counter error:', e);
         display.textContent = '-------';
