@@ -204,18 +204,29 @@
       transform: translateZ(0);
     }
 
-    /* === STICKY SOCIAL LINKS === */
-    .links-sentinel {
-      /* invisible marker — when this scrolls out of view, nav goes sticky */
-      height: 1px;
-      width: 100%;
+    /* === SOCIAL LINKS === */
+    .links-wrapper {
+      position: fixed;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 150;
       pointer-events: none;
+      /* Only fix to viewport when there's enough vertical room */
+      max-height: calc(100vh - 6rem);
+      overflow: visible;
     }
 
-    .links-wrapper {
-      width: 100%;
-      display: flex;
-      justify-content: center;
+    /* When screen is too short (zoomed in / small phone), fall back to in-flow */
+    @media (max-height: 650px) {
+      .links-wrapper {
+        position: relative;
+        bottom: auto;
+        left: auto;
+        transform: none;
+        margin-top: 1rem;
+        padding-bottom: 1rem;
+      }
     }
 
     .links {
@@ -223,31 +234,7 @@
       gap: 1.2rem;
       flex-wrap: wrap;
       justify-content: center;
-      padding: 0.6rem 1rem;
-      transition: background 0.3s, backdrop-filter 0.3s, box-shadow 0.3s;
-      border-radius: 2px;
-    }
-
-    /* When sentinel leaves viewport, JS adds .is-sticky to .links-wrapper */
-    .links-wrapper.is-sticky {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 180;
-      justify-content: center;
-      padding: 0 1rem;
-    }
-
-    .links-wrapper.is-sticky .links {
-      width: 100%;
-      background: rgba(5, 10, 4, 0.88);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-top: 1px solid rgba(74, 140, 28, 0.3);
-      box-shadow: 0 -4px 24px rgba(26, 74, 10, 0.5);
-      border-radius: 0;
-      padding: 0.7rem 1rem;
+      pointer-events: all;
     }
 
     .links a {
@@ -261,7 +248,6 @@
       border-bottom: 1px solid transparent;
       transition: color 0.2s, border-color 0.2s;
       white-space: nowrap;
-      /* bigger tap target on mobile */
       min-height: 44px;
       display: flex;
       align-items: center;
@@ -362,10 +348,7 @@
 
     <div class="badge">Something wicked this way comes</div>
 
-    <!-- sentinel: when this scrolls out of view, social links go sticky -->
-    <div class="links-sentinel" id="links-sentinel"></div>
-
-    <div class="links-wrapper" id="links-wrapper">
+<div class="links-wrapper">
       <nav class="links">
         <a href="https://www.youtube.com/@GoblinFiendStudios" target="_blank" rel="noopener">YouTube</a>
         <a href="https://www.tiktok.com/@goblinfiend" target="_blank" rel="noopener">TikTok</a>
@@ -586,23 +569,7 @@
     startLoop();
   </script>
 
-  <script>
-    // === STICKY SOCIAL LINKS ===
-    const sentinel = document.getElementById('links-sentinel');
-    const wrapper  = document.getElementById('links-wrapper');
-
-    if ('IntersectionObserver' in window) {
-      const obs = new IntersectionObserver(
-        ([entry]) => {
-          wrapper.classList.toggle('is-sticky', !entry.isIntersecting);
-        },
-        { threshold: 0, rootMargin: '0px 0px -60px 0px' }
-      );
-      obs.observe(sentinel);
-    }
-  </script>
-
-  <script>
+<script>
     // === VISITOR COUNTER (Supabase) ===
     (async () => {
       const SUPABASE_URL = 'https://wpvgszvmcenlfldodswo.supabase.co';
