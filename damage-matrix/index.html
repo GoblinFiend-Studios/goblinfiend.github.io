@@ -18,10 +18,10 @@
     --ink-faint: #435a2e;
     --accent: #6dbf2a;
     --accent-dim: #3f7a1a;
-    --vuln-solid: #bf4a3a;
-    --amber-solid: #c9822a;
-    --resist-solid: #5a8a54;
-    --resist-light-solid: #8cbe6e;
+    --vuln-solid: #7d1814;
+    --amber-solid: #e1be28;
+    --resist-solid: #aaeb28;
+    --resist-light-solid: #121c0f;
     --bp-color: #b23a4e;
     --pc-color: #2f9e94;
     --ms-color: #a8763a;
@@ -432,15 +432,20 @@
 </div>
 
 <script>
-  const AMBER = [201, 130, 42];
-  const RED = [191, 74, 58];
-  const GREEN_LIGHT = [148, 205, 92];
-  const GREEN_DARK = [78, 168, 42];
+  const YELLOW = [225, 190, 40];
+  const ORANGE = [210, 120, 30];
+  const RED = [125, 24, 20];
+  const GREEN_LIGHT = [18, 28, 15];
+  const GREEN_MID = [50, 225, 32];
+  const LIME = [170, 235, 40];
   const BADGE_LABEL = { bp: "Bleed Proc", pc: "Pierce Crit", ms: "Ministun" };
 
   function lerp(a, b, t) { return a + (b - a) * t; }
   function mixRGB(c1, c2, t) {
     return [lerp(c1[0], c2[0], t), lerp(c1[1], c2[1], t), lerp(c1[2], c2[2], t)];
+  }
+  function mixRGB3(c1, c2, c3, t) {
+    return t <= 0.5 ? mixRGB(c1, c2, t / 0.5) : mixRGB(c2, c3, (t - 0.5) / 0.5);
   }
   function rgba(rgb, alpha) {
     return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha})`;
@@ -456,12 +461,14 @@
     let bg = "rgba(90,112,64,0.10)";
     let accent = "rgba(90,112,64,0.45)";
     if (v > 0) {
-      // Two tiers, no white: a gentle 0-15 climb (curved so 5 and 7.5 pull
-      // back toward pale/less-green instead of clustering near 12.5/15),
-      // then a steep 15-maxPos climb straight to full GREEN_DARK.
+      // Dramatic range: near-0 resist values sit almost black/invisible
+      // against the dark card (GREEN_LIGHT is a near-black green, alpha
+      // barely above 0), climbing to a vivid, highly saturated green at
+      // maxPos. Low range (0-15) still gets its own gentle curve so 5/7.5
+      // aren't identical to 12.5/15, just all shifted much darker overall.
       const RESIST_THRESHOLD = 15;
-      const LOW_T_MAX = 0.45;
-      const LOW_CURVE_EXP = 1.6; // pushes small values (5, 7.5) down harder than values near 15
+      const LOW_T_MAX = 0.16;
+      const LOW_CURVE_EXP = 1.5;
       let raw;
       if (v <= RESIST_THRESHOLD) {
         const localFrac = v / RESIST_THRESHOLD;
@@ -470,18 +477,26 @@
         raw = LOW_T_MAX + ( 1 - LOW_T_MAX ) * Math.min( 1, ( v - RESIST_THRESHOLD ) / ( maxPos - RESIST_THRESHOLD ) );
       }
       const t = Math.pow(raw, 0.55);
-      const rgb = mixRGB(GREEN_LIGHT, GREEN_DARK, t);
-      const alpha = 0.24 + 0.34 * t;
-      bg = rgba(rgb, alpha);
-      accent = rgba(rgb, 0.85);
+      const rgb = mixRGB3(GREEN_LIGHT, GREEN_MID, LIME, t);
+      bg = rgba(rgb, 0.06 + 0.80 * t);
+      accent = rgba(rgb, Math.min(0.95, 0.15 + 0.80 * t));
     } else if (v < 0) {
+      // Mirrors the resist side: mild vulnerabilities read as a subtle,
+      // faint amber (barely there), ramping to a deep, dark, saturated
+      // red at the most severe end instead of a bright coral-red.
       const VULN_THRESHOLD = 10;
+      const LOW_T_MAX_NEG = 0.16;
       const absV = Math.abs(v);
-      const raw = absV <= VULN_THRESHOLD ? 0 : Math.min( 1, ( absV - VULN_THRESHOLD ) / ( maxNegAbs - VULN_THRESHOLD ) );
-      const t = Math.pow(raw, 0.65);
-      const rgb = mixRGB(AMBER, RED, t);
-      bg = rgba(rgb, 0.28 + 0.30 * t);
-      accent = rgba(rgb, 0.85);
+      let raw;
+      if (absV <= VULN_THRESHOLD) {
+        raw = ( absV / VULN_THRESHOLD ) * LOW_T_MAX_NEG;
+      } else {
+        raw = LOW_T_MAX_NEG + ( 1 - LOW_T_MAX_NEG ) * Math.min( 1, ( absV - VULN_THRESHOLD ) / ( maxNegAbs - VULN_THRESHOLD ) );
+      }
+      const t = Math.pow(raw, 0.6);
+      const rgb = mixRGB3(YELLOW, ORANGE, RED, t);
+      bg = rgba(rgb, 0.06 + 0.80 * t);
+      accent = rgba(rgb, Math.min(0.95, 0.15 + 0.80 * t));
     }
     cell.style.setProperty("--cell-bg", bg);
     cell.style.setProperty("--cell-accent", accent);
