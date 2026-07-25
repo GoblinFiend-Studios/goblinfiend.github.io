@@ -149,6 +149,19 @@
       opacity: 0.7;
     }
 
+    a.badge {
+      text-decoration: none;
+      cursor: pointer;
+      transition: box-shadow 0.25s, border-color 0.25s;
+    }
+
+    a.badge:hover,
+    a.badge:focus {
+      border-color: var(--bright);
+      box-shadow: 0 0 20px var(--slime), inset 0 0 14px #1a4a0a55;
+      outline: none;
+    }
+
     /* === SLIME BUBBLES === */
     .bubbles {
       display: flex;
@@ -359,7 +372,7 @@
     <h1 class="studio-name">Goblin Fiend Studios</h1>
     <p class="tagline">Indie Game Development & Art</p>
 
-    <div class="badge">Something wicked this way comes</div>
+    <a class="badge" href="damage-matrix.html">Something wicked this way comes</a>
 
 <div class="links-wrapper">
       <nav class="links">

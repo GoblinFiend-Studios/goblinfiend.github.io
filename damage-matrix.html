@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Damage Matrix — Goblin Fiend Studios</title>
+<link rel="icon" type="image/png" href="GOBLINFIENDpixelLOGO4.png"/>
+<link rel="apple-touch-icon" href="GOBLINFIENDpixelLOGO4.png"/>
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Cinzel:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #050a04;
+    --surface: #0b130a;
+    --surface-2: #101d0e;
+    --line: #1e2f18;
+    --ink: #c8d9b0;
+    --ink-dim: #5a7040;
+    --ink-faint: #435a2e;
+    --accent: #6dbf2a;
+    --accent-dim: #3f7a1a;
+    --vuln-solid: #bf4a3a;
+    --amber-solid: #c9822a;
+    --resist-solid: #5a8a54;
+    --resist-light-solid: #8cbe6e;
+    --bp-color: #b23a4e;
+    --pc-color: #2f9e94;
+    --ms-color: #a8763a;
+    --shadow: 0 1px 2px rgba(0,0,0,0.6), 0 10px 34px rgba(0,0,0,0.6);
+    --font-display: 'UnifrakturMaguntia', cursive;
+    --font-label: 'Cinzel', serif;
+    --font-mono: 'Share Tech Mono', ui-monospace, "SFMono-Regular", Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(ellipse at top, rgba(109,191,42,0.07), transparent 60%),
+      var(--bg);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    line-height: 1.5;
+    position: relative;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(109,191,42,0.025) 0px,
+      rgba(109,191,42,0.025) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    z-index: 1;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 2;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 32px 24px 90px;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-label);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .back-link:hover, .back-link:focus {
+    color: var(--accent);
+    border-color: var(--accent-dim);
+    outline: none;
+  }
+
+  header {
+    margin: 32px 0 40px;
+    text-align: center;
+  }
+  .eyebrow {
+    font-family: var(--font-label);
+    font-size: 12px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    font-weight: 600;
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(38px, 6vw, 58px);
+    margin: 12px 0 6px;
+    letter-spacing: 0.02em;
+    text-wrap: balance;
+    color: var(--accent);
+    text-shadow: 0 0 18px rgba(109,191,42,0.35), 0 2px 4px rgba(0,0,0,0.6);
+  }
+  .rule {
+    width: 140px;
+    height: 1px;
+    margin: 18px auto;
+    background: linear-gradient(90deg, transparent, var(--accent-dim), transparent);
+  }
+  .sub {
+    color: var(--ink-dim);
+    font-size: 14px;
+    max-width: 56ch;
+    margin: 0 auto;
+  }
+
+  .legend-block {
+    margin: 34px auto 0;
+    max-width: 620px;
+  }
+  .scale-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--ink-dim);
+  }
+  .scale-label { flex: none; white-space: nowrap; }
+  .scale-label.vuln { color: var(--vuln-solid); }
+  .scale-label.resist { color: var(--resist-solid); }
+  .scale-bar {
+    flex: 1;
+    height: 8px;
+    border-radius: 99px;
+    background: linear-gradient(90deg,
+      var(--vuln-solid),
+      var(--amber-solid) 32%,
+      rgba(90,112,64,0.55) 50%,
+      var(--resist-light-solid) 68%,
+      var(--resist-solid));
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.4);
+  }
+
+  .proc-legend {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px 26px;
+    margin-top: 22px;
+  }
+  .proc-item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 12.5px;
+    color: var(--ink-dim);
+  }
+  .proc-badge {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    color: #050a04;
+  }
+  .proc-badge.bp { background: var(--bp-color); }
+  .proc-badge.pc { background: var(--pc-color); }
+  .proc-badge.ms { background: var(--ms-color); }
+  .proc-item strong { color: var(--ink); font-weight: 700; }
+
+  .table-card {
+    margin-top: 44px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .table-scroll {
+    overflow-x: auto;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 760px;
+  }
+  thead th {
+    font-family: var(--font-label);
+    font-size: 12.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--surface-2);
+    padding: 16px 10px;
+    text-align: center;
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+  }
+  thead th:first-child {
+    text-align: left;
+    padding-left: 20px;
+  }
+  tbody th {
+    font-family: var(--font-label);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    text-align: left;
+    padding: 14px 16px 14px 20px;
+    background: var(--surface-2);
+    border-right: 1px solid var(--line);
+    white-space: nowrap;
+    position: sticky;
+    left: 0;
+  }
+  tbody tr:not(:last-child) td,
+  tbody tr:not(:last-child) th {
+    border-bottom: 1px solid var(--line);
+  }
+  td {
+    position: relative;
+    padding: 12px 10px;
+    text-align: center;
+    vertical-align: middle;
+    min-width: 108px;
+  }
+  td::before {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border-radius: 6px;
+    background: var(--cell-bg, transparent);
+    border-left: 3px solid var(--cell-accent, transparent);
+    z-index: 0;
+  }
+  .cell-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .cell-value {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .cell-note {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    line-height: 1.3;
+    max-width: 15ch;
+  }
+  .cell-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .cell-badge {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 3px;
+    color: #050a04;
+  }
+  .cell-badge.bp { background: var(--bp-color); }
+  .cell-badge.pc { background: var(--pc-color); }
+  .cell-badge.ms { background: var(--ms-color); }
+
+  footer {
+    margin-top: 40px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+  }
+  footer p { margin: 6px 0; }
+  footer strong { color: var(--ink-dim); }
+  footer .footer-heading {
+    font-family: var(--font-label);
+    font-size: 11.5px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--accent-dim);
+    margin: 0 0 10px;
+  }
+
+  @media (max-width: 560px) {
+    .wrap { padding: 24px 14px 70px; }
+    thead th, tbody th { font-size: 11px; padding: 10px 8px; }
+    td { min-width: 92px; padding: 8px 6px; }
+    .cell-value { font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back-link" href="index.html">&larr; Goblin Fiend Studios</a>
+
+  <header>
+    <div class="eyebrow">Grave Engine · Combat Reference</div>
+    <h1>The Damage Matrix</h1>
+    <div class="rule"></div>
+    <p class="sub">Percent resistance for every damage type against every armor category. Negative numbers are vulnerabilities — bonus damage against that armor. Positive numbers are resisted — reduced damage.</p>
+
+    <div class="legend-block">
+      <div class="scale-row">
+        <span class="scale-label vuln">Vulnerable</span>
+        <span class="scale-bar"></span>
+        <span class="scale-label resist">Resisted</span>
+      </div>
+      <div class="proc-legend">
+        <span class="proc-item"><span class="proc-badge bp">BP</span><strong>Bleed Proc</strong> — 20% chance, 32 dmg over 8s</span>
+        <span class="proc-item"><span class="proc-badge pc">PC</span><strong>Pierce Crit</strong> — 10% chance, +35% damage</span>
+        <span class="proc-item"><span class="proc-badge ms">MS</span><strong>Ministun</strong> — 10% chance, 0.6s stun + 5&times; knockback</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="table-card">
+    <div class="table-scroll">
+      <table id="matrix">
+        <thead>
+          <tr>
+            <th>Damage Type</th>
+            <th>Slash</th>
+            <th>Pierce</th>
+            <th>Crush</th>
+            <th>Magic</th>
+            <th>Explosive</th>
+            <th>Siege</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-row="Unarmored">
+            <th scope="row">Unarmored</th>
+            <td data-value="-15" data-badge="bp"></td>
+            <td data-value="-7.5"></td>
+            <td data-value="-10"></td>
+            <td data-value="0"></td>
+            <td data-value="-27.5"></td>
+            <td data-value="-10"></td>
+          </tr>
+          <tr data-row="Light">
+            <th scope="row">Light</th>
+            <td data-value="0" data-badge="bp"></td>
+            <td data-value="-10"></td>
+            <td data-value="7.5"></td>
+            <td data-value="7.5"></td>
+            <td data-value="-10"></td>
+            <td data-value="0"></td>
+          </tr>
+          <tr data-row="Medium">
+            <th scope="row">Medium</th>
+            <td data-value="-5"></td>
+            <td data-value="12.5" data-badge="pc" data-eff="9.4"></td>
+            <td data-value="12.5"></td>
+            <td data-value="0"></td>
+            <td data-value="5"></td>
+            <td data-value="0"></td>
+          </tr>
+          <tr data-row="Heavy">
+            <th scope="row">Heavy</th>
+            <td data-value="25"></td>
+            <td data-value="15" data-badge="pc" data-eff="12.0"></td>
+            <td data-value="-17.5" data-badge="ms"></td>
+            <td data-value="-7.5"></td>
+            <td data-value="15"></td>
+            <td data-value="12.5"></td>
+          </tr>
+          <tr data-row="Spectral">
+            <th scope="row">Spectral</th>
+            <td data-value="33"></td>
+            <td data-value="33"></td>
+            <td data-value="33"></td>
+            <td data-value="-33"></td>
+            <td data-value="66"></td>
+            <td data-value="33"></td>
+          </tr>
+          <tr data-row="Warded">
+            <th scope="row">Warded</th>
+            <td data-value="-7.5" data-badge="bp"></td>
+            <td data-value="-7.5"></td>
+            <td data-value="-7.5"></td>
+            <td data-value="35"></td>
+            <td data-value="5"></td>
+            <td data-value="-7.5"></td>
+          </tr>
+          <tr data-row="Fortified">
+            <th scope="row">Fortified</th>
+            <td data-value="60"></td>
+            <td data-value="60"></td>
+            <td data-value="45"></td>
+            <td data-value="70"></td>
+            <td data-value="-2.5"></td>
+            <td data-value="-22.5"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    <p class="footer-heading">Other notes:</p>
+    <p><strong>Pure</strong> damage bypasses this matrix entirely — always deals full, unmodified damage, no matrix lookup, no crit roll, no interaction with Rend.</p>
+    <p><strong>Rend</strong> cancels physical resistance (Slash / Pierce / Crush / Siege) down to a floor of 0 — it strips existing resistance away, it cannot push a value further into vulnerability.</p>
+  </footer>
+</div>
+
+<script>
+  const AMBER = [201, 130, 42];
+  const RED = [191, 74, 58];
+  const GREEN_LIGHT = [140, 190, 110];
+  const GREEN_DARK = [90, 138, 84];
+  const BADGE_LABEL = { bp: "Bleed Proc", pc: "Pierce Crit", ms: "Ministun" };
+
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function mixRGB(c1, c2, t) {
+    return [lerp(c1[0], c2[0], t), lerp(c1[1], c2[1], t), lerp(c1[2], c2[2], t)];
+  }
+  function rgba(rgb, alpha) {
+    return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha})`;
+  }
+
+  const cells = Array.from(document.querySelectorAll("td[data-value]"));
+  const values = cells.map(c => parseFloat(c.dataset.value));
+  const maxPos = Math.max(...values.filter(v => v > 0), 1);
+  const maxNegAbs = Math.abs(Math.min(...values.filter(v => v < 0), -1));
+
+  cells.forEach(cell => {
+    const v = parseFloat(cell.dataset.value);
+    let bg = "rgba(90,112,64,0.10)";
+    let accent = "rgba(90,112,64,0.45)";
+    if (v > 0) {
+      const raw = v / maxPos;
+      const t = Math.pow(raw, 1.6);
+      const rgb = mixRGB(GREEN_LIGHT, GREEN_DARK, t);
+      bg = rgba(rgb, 0.22 + 0.30 * t);
+      accent = rgba(rgb, 0.85);
+    } else if (v < 0) {
+      const VULN_THRESHOLD = 10;
+      const absV = Math.abs(v);
+      const raw = absV <= VULN_THRESHOLD ? 0 : Math.min( 1, ( absV - VULN_THRESHOLD ) / ( maxNegAbs - VULN_THRESHOLD ) );
+      const t = Math.pow(raw, 0.65);
+      const rgb = mixRGB(AMBER, RED, t);
+      bg = rgba(rgb, 0.28 + 0.30 * t);
+      accent = rgba(rgb, 0.85);
+    }
+    cell.style.setProperty("--cell-bg", bg);
+    cell.style.setProperty("--cell-accent", accent);
+
+    const inner = document.createElement("div");
+    inner.className = "cell-inner";
+
+    const valueEl = document.createElement("div");
+    valueEl.className = "cell-value";
+    valueEl.textContent = (v > 0 ? "+" : "") + (Number.isInteger(v) ? v : v.toFixed(1));
+    inner.appendChild(valueEl);
+
+    const badgeKey = cell.dataset.badge;
+    if (badgeKey) {
+      const row = document.createElement("div");
+      row.className = "cell-badge-row";
+      const badge = document.createElement("span");
+      badge.className = "cell-badge " + badgeKey;
+      badge.textContent = badgeKey.toUpperCase();
+      row.appendChild(badge);
+      inner.appendChild(row);
+
+      if (badgeKey === "pc" && cell.dataset.eff) {
+        const note = document.createElement("div");
+        note.className = "cell-note";
+        note.textContent = "eff. ~" + cell.dataset.eff + "%";
+        inner.appendChild(note);
+      }
+    }
+
+    cell.appendChild(inner);
+    cell.setAttribute("title", BADGE_LABEL[badgeKey] ? `${BADGE_LABEL[badgeKey]} eligible` : "");
+  });
+</script>
+</body>
+</html>
