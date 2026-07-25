@@ -456,8 +456,12 @@
     let bg = "rgba(90,112,64,0.10)";
     let accent = "rgba(90,112,64,0.45)";
     if (v > 0) {
-      const raw = v / maxPos;
-      const t = Math.pow(raw, 1.6);
+      // Flat light green up to 15 (a "mild resistance" zone), then greens up
+      // quickly past that -- mirrors the amber/red vulnerability curve below,
+      // so Heavy-and-up resist values read as noticeably more saturated.
+      const RESIST_THRESHOLD = 15;
+      const raw = v <= RESIST_THRESHOLD ? 0 : Math.min( 1, ( v - RESIST_THRESHOLD ) / ( maxPos - RESIST_THRESHOLD ) );
+      const t = Math.pow(raw, 0.65);
       const rgb = mixRGB(GREEN_LIGHT, GREEN_DARK, t);
       bg = rgba(rgb, 0.22 + 0.30 * t);
       accent = rgba(rgb, 0.85);
