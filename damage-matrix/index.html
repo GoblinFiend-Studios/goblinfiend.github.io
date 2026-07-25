@@ -18,10 +18,10 @@
     --ink-faint: #435a2e;
     --accent: #6dbf2a;
     --accent-dim: #3f7a1a;
-    --vuln-solid: #7d1814;
-    --amber-solid: #e1be28;
-    --resist-solid: #aaeb28;
-    --resist-light-solid: #121c0f;
+    --vuln-solid: #69201c;
+    --amber-solid: #8c763c;
+    --resist-solid: #6e9637;
+    --resist-light-solid: #37462d;
     --bp-color: #b23a4e;
     --pc-color: #2f9e94;
     --ms-color: #a8763a;
@@ -432,12 +432,12 @@
 </div>
 
 <script>
-  const YELLOW = [225, 190, 40];
-  const ORANGE = [210, 120, 30];
-  const RED = [125, 24, 20];
-  const GREEN_LIGHT = [18, 28, 15];
-  const GREEN_MID = [50, 225, 32];
-  const LIME = [170, 235, 40];
+  const YELLOW = [140, 118, 60];
+  const ORANGE = [130, 82, 45];
+  const RED = [105, 32, 28];
+  const GREEN_LIGHT = [55, 70, 45];
+  const GREEN_MID = [65, 115, 50];
+  const LIME = [110, 150, 55];
   const BADGE_LABEL = { bp: "Bleed Proc", pc: "Pierce Crit", ms: "Ministun" };
 
   function lerp(a, b, t) { return a + (b - a) * t; }
@@ -467,7 +467,7 @@
       // maxPos. Low range (0-15) still gets its own gentle curve so 5/7.5
       // aren't identical to 12.5/15, just all shifted much darker overall.
       const RESIST_THRESHOLD = 15;
-      const LOW_T_MAX = 0.16;
+      const LOW_T_MAX = 0.22;
       const LOW_CURVE_EXP = 1.5;
       let raw;
       if (v <= RESIST_THRESHOLD) {
@@ -478,14 +478,14 @@
       }
       const t = Math.pow(raw, 0.55);
       const rgb = mixRGB3(GREEN_LIGHT, GREEN_MID, LIME, t);
-      bg = rgba(rgb, 0.06 + 0.80 * t);
-      accent = rgba(rgb, Math.min(0.95, 0.15 + 0.80 * t));
+      bg = rgba(rgb, 0.16 + 0.55 * t);
+      accent = rgba(rgb, Math.min(0.9, 0.25 + 0.55 * t));
     } else if (v < 0) {
       // Mirrors the resist side: mild vulnerabilities read as a subtle,
       // faint amber (barely there), ramping to a deep, dark, saturated
       // red at the most severe end instead of a bright coral-red.
       const VULN_THRESHOLD = 10;
-      const LOW_T_MAX_NEG = 0.16;
+      const LOW_T_MAX_NEG = 0.22;
       const absV = Math.abs(v);
       let raw;
       if (absV <= VULN_THRESHOLD) {
@@ -495,8 +495,8 @@
       }
       const t = Math.pow(raw, 0.6);
       const rgb = mixRGB3(YELLOW, ORANGE, RED, t);
-      bg = rgba(rgb, 0.06 + 0.80 * t);
-      accent = rgba(rgb, Math.min(0.95, 0.15 + 0.80 * t));
+      bg = rgba(rgb, 0.16 + 0.55 * t);
+      accent = rgba(rgb, Math.min(0.9, 0.25 + 0.55 * t));
     }
     cell.style.setProperty("--cell-bg", bg);
     cell.style.setProperty("--cell-accent", accent);
