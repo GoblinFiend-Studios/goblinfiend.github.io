@@ -436,7 +436,6 @@
   const RED = [191, 74, 58];
   const GREEN_LIGHT = [148, 205, 92];
   const GREEN_DARK = [78, 168, 42];
-  const WHITE_BRIGHT = [245, 255, 225];
   const BADGE_LABEL = { bp: "Bleed Proc", pc: "Pierce Crit", ms: "Ministun" };
 
   function lerp(a, b, t) { return a + (b - a) * t; }
@@ -457,31 +456,24 @@
     let bg = "rgba(90,112,64,0.10)";
     let accent = "rgba(90,112,64,0.45)";
     if (v > 0) {
-      // Three tiers: a wide gentle climb from 0-15 (so 5/7.5/12.5/15 spread
-      // out and brighten, with real variance between them instead of looking
-      // identical), a steep climb from 15-50 that reaches full GREEN_DARK
-      // saturation by 50 ("Heavy resists get even greener"), then a
-      // white/bright blend from 50 up to maxPos so the strongest resistances
-      // (Fortified's 60/70, Spectral's 66) glow toward white instead of
-      // just staying dark green.
+      // Two tiers, no white: a gentle 0-15 climb (curved so 5 and 7.5 pull
+      // back toward pale/less-green instead of clustering near 12.5/15),
+      // then a steep 15-maxPos climb straight to full GREEN_DARK.
       const RESIST_THRESHOLD = 15;
-      const WHITE_THRESHOLD = 50;
       const LOW_T_MAX = 0.45;
-      let rgb, alpha;
-      if (v >= WHITE_THRESHOLD) {
-        const whiteT = Math.pow(Math.min(1, (v - WHITE_THRESHOLD) / (maxPos - WHITE_THRESHOLD)), 0.7);
-        rgb = mixRGB(GREEN_DARK, WHITE_BRIGHT, whiteT);
-        alpha = 0.5 + 0.4 * whiteT;
+      const LOW_CURVE_EXP = 1.6; // pushes small values (5, 7.5) down harder than values near 15
+      let raw;
+      if (v <= RESIST_THRESHOLD) {
+        const localFrac = v / RESIST_THRESHOLD;
+        raw = Math.pow(localFrac, LOW_CURVE_EXP) * LOW_T_MAX;
       } else {
-        const raw = v <= RESIST_THRESHOLD
-          ? ( v / RESIST_THRESHOLD ) * LOW_T_MAX
-          : LOW_T_MAX + ( 1 - LOW_T_MAX ) * Math.min( 1, ( v - RESIST_THRESHOLD ) / ( WHITE_THRESHOLD - RESIST_THRESHOLD ) );
-        const t = Math.pow(raw, 0.55);
-        rgb = mixRGB(GREEN_LIGHT, GREEN_DARK, t);
-        alpha = 0.24 + 0.34 * t;
+        raw = LOW_T_MAX + ( 1 - LOW_T_MAX ) * Math.min( 1, ( v - RESIST_THRESHOLD ) / ( maxPos - RESIST_THRESHOLD ) );
       }
+      const t = Math.pow(raw, 0.55);
+      const rgb = mixRGB(GREEN_LIGHT, GREEN_DARK, t);
+      const alpha = 0.24 + 0.34 * t;
       bg = rgba(rgb, alpha);
-      accent = rgba(rgb, Math.min(0.95, alpha + 0.5));
+      accent = rgba(rgb, 0.85);
     } else if (v < 0) {
       const VULN_THRESHOLD = 10;
       const absV = Math.abs(v);
